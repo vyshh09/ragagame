@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12 Swarastana Memorhythm</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin: 10px 0;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            padding: 10px;
+        }
+
+        .menu-screen, .game-screen, .quiz-screen {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: min(90%, 200px);
+            color: white;
+            transition: transform 0.2s;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .button:hover, .button:active {
+            transform: scale(0.98);
+        }
+
+        .practice { background-color: #0000FF; }
+        .challenge { background-color: #00FF00; }
+        .quiz { background-color: #800080; }
+        .quit { background-color: #FF0000; }
+        .replay { background-color: #FFA500; }
+        .next { background-color: #008000; }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(10px, 2vw, 20px);
+            margin: 15px 0;
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+        }
+
+        .note-pad {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: #0000FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: clamp(0.8rem, 3vw, 1.2rem);
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+
+        .note-pad:hover, .note-pad:active {
+            background-color: #0000CC;
+            transform: scale(0.95);
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 10px;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        .raga-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            width: 100%;
+        }
+
+        .note-sequence {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .note-box {
+            padding: 8px;
+            border: 1px solid white;
+            border-radius: 5px;
+            min-width: 35px;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+        }
+
+        .note-box.current {
+            background-color: #0000FF;
+        }
+
+        .note-box.completed {
+            background-color: #008000;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .quiz-question {
+            text-align: center;
+            margin: 15px 0;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            padding: 0 10px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: min(100%, 400px);
+            padding: 10px;
+        }
+
+        .quiz-option {
+            padding: 12px;
+            background-color: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .quiz-option:hover, .quiz-option:active {
+            background-color: #444;
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .note-sequence {
+                gap: 5px;
+            }
+
+            .note-box {
+                padding: 5px;
+                min-width: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">12 Swarastana Memorhythm</h1>
+    <div class="game-container">
+        <div id="menu-screen" class="menu-screen">
+            <button class="button challenge">Raga Challenge </button>
+            <button class="button quiz">Music Quiz</button>
+            <button class="button quit">Quit</button>
+        </div>
+        
+        <div id="game-screen" class="game-screen" style="display: none;">
+            <div class="stats">
+                <span id="score">Score: 0</span>
+                <span id="timer"></span> <!-- Timer display -->
+                <span id="streak">Streak: 0</span>
+            </div>
+            <div class="raga-display">
+                <h2 id="current-raga"></h2>
+                <div id="note-sequence" class="note-sequence"></div>
+                <p id="current-note"></p>
+            </div>
+            <div class="game-board" id="game-board"></div>
+            <div class="controls">
+                <button class="button quit">Back to Menu</button>
+                <button class="button practice" id="next-level" style="display: none;">Next Level</button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="quiz-screen" style="display: none;">
+            <div class="stats">
+                <span id="quiz-score">Score: 0</span>
+                <span id="quiz-lives">Lives: ❤❤❤</span>
+            </div>
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div class="controls">
+                <button class="button quit">Back to Menu</button>
+                <button class="button practice" id="next-question" style="display: none;">Next Question</button>
+            </div>
+        </div>
+    </div>
+    <div class="message" id="message"></div>
+
+    <script>
+        // Game state and constants
+        const NOTES = ['S', 'r1', 'r2', 'g1', 'g2', 'm1', 'm2', 'p', 'd1', 'd2', 'n1', 'n2', 'S1'];
+        const RAGAS = {
+    "Sankarabharanam": {
+        "sequence": "S r2 g2 m1 p d2 n2 S1",
+        "difficulty": "Medium",
+        "pair": "Kalyani",
+        "difference": "m1/m2 difference"
+    },
+    "Kalyani": {
+        "sequence": "S r2 g2 m2 p d2 n2 S1",
+        "difficulty": "Medium",
+        "pair": "Sankarabharanam",
+        "difference": "m1/m2 difference"
+    },
+    "Mohana": {
+        "sequence": "S r2 g2 p d2 S1",
+        "difficulty": "Easy",
+        "pair": "Sivaranjani",
+        "difference": "g2/g1 difference"
+    },
+    "Sivaranjani": {
+        "sequence": "S r2 g1 p d2 S1",
+        "difficulty": "Easy",
+        "pair": "Mohana",
+        "difference": "g2/g1 difference"
+    },
+    "Desh": {
+        "sequence": "S r2 m1 p n2 S1 S1 n1 d2 p m1 g2 r2 S",
+        "difficulty": "Medium"
+    },
+    "Brindavani": {
+        "sequence": "S1 r2 m1 p n2 S1 S1 n2 p m1 r2 S",
+        "difficulty": "Medium"
+    },
+    "Mayamalavagoula": {
+        "sequence": "S r1 g2 m1 p d1 n2 S1",
+        "difficulty": "Hard",
+        "pair": "Keeravani",
+        "difference": "Two swaras different"
+    },
+    "Keeravani": {
+        "sequence": "S r2 g1 m1 p d1 n2 S1",
+        "difficulty": "Hard",
+        "pair": "Mayamalavagoula",
+        "difference": "Two swaras different"
+    },
+    "Ahirbhairav": {
+        "sequence": "S r1 g2 m1 p d2 n1 S1",
+        "difficulty": "Hard"
+    }
+};
+
+        const QUIZ_QUESTIONS = [
+            {
+                question: "Which note comes after 'p' in Sankarabharanam?",
+                options: ["d1", "d2", "n1", "n2"],
+                correct: "d2"
+            },
+            {
+                question: "What distinguishes Kalyani from Sankarabharanam?",
+                options: ["m1 vs m2", "d1 vs d2", "n1 vs n2", "r1 vs r2"],
+                correct: "m1 vs m2"
+            }
+        ];
+
+        const gameState = {
+            score: 0,
+            streak: 0,
+            bestStreak: 0,
+            currentMode: null,
+            currentRaga: null,
+            currentSequence: [],
+            currentIndex: 0,
+            timer: null,
+            quizIndex: 0,
+            completedRagas: new Set(),
+            timeLimit: 20, // Add this line
+            timeRemaining: 20 // Add this line
+        };
+
+        // Audio setup
+        // Audio setup
+const sounds = {};
+NOTES.forEach(note => {
+    sounds[note] = new Howl({
+        src: [`./sounds/${note}.mp3`],
+        html5: true,
+        onloaderror: function() {
+            console.error(`Failed to load sound for note: ${note}`);
+        },
+        onload: function() {
+            console.log(`Successfully loaded sound for note: ${note}`);
+        }
+    });
+});
+
+        // UI Elements
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const gameBoard = document.getElementById('game-board');
+        const messageEl = document.getElementById('message');
+        const noteSequenceEl = document.getElementById('note-sequence');
+
+        // Initialize game board
+        function initializeGameBoard() {
+            gameBoard.innerHTML = '';
+            NOTES.forEach(note => {
+                const pad = document.createElement('div');
+                pad.className = 'note-pad';
+                pad.textContent = note;
+                pad.addEventListener('click', () => handleNoteClick(note));
+                gameBoard.appendChild(pad);
+            });
+        }
+
+        // Update note sequence display
+        function updateNoteSequence() {
+            noteSequenceEl.innerHTML = '';
+            gameState.currentSequence.forEach((note, index) => {
+                const noteBox = document.createElement('div');
+                noteBox.className = `note-box ${index === gameState.currentIndex ? 'current' : ''}`;
+                noteBox.textContent = note;
+                noteSequenceEl.appendChild(noteBox);
+            });
+        }
+
+        // Show message
+        function showMessage(text, duration = 1500) {
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, duration);
+        }
+
+        function updateStats() {
+            const scoreEl = document.getElementById(gameState.currentMode === 'quiz' ? 'quiz-score' : 'score');
+            scoreEl.textContent = `Score: ${gameState.score}`;
+            
+            // Remove lives display for challenge mode
+            if (gameState.currentMode === 'quiz') {
+                const livesEl = document.getElementById('quiz-lives');
+                livesEl.textContent = `Lives: ${'❤'.repeat(gameState.lives)}`;
+            }
+
+            // Update timer display
+            document.getElementById('timer').textContent = `Time: ${gameState.timeRemaining}s`;
+            
+            if (gameState.currentMode !== 'quiz') {
+                document.getElementById('streak').textContent = `Streak: ${gameState.streak}`;
+            }
+        }
+
+        // Handle note click
+        function handleNoteClick(note) {
+            sounds[note].play();
+            const currentNote = gameState.currentSequence[gameState.currentIndex];
+            
+            // Try to play the sound
+            try {
+                if (sounds[note] && sounds[note].state() === 'loaded') {
+                    sounds[note].play();
+                } else {
+                    console.warn(`Sound for note ${note} not loaded yet`);
+                }
+            } catch (error) {
+                console.error(`Error playing sound for note ${note}:`, error);
+            }
+
+
+            if (note === currentNote) {
+                gameState.score += gameState.currentMode === 'challenge' ? 20 : 10;
+                gameState.streak++;
+                gameState.bestStreak = Math.max(gameState.streak, gameState.bestStreak);
+                gameState.currentIndex++;
+                
+                // Update completed note visualization
+                updateNoteSequence();
+                
+                if (gameState.currentIndex >= gameState.currentSequence.length) {
+                    gameState.completedRagas.add(gameState.currentRaga);
+                    clearInterval(gameState.timer); // Stop the timer
+                    showMessage('Raga Complete!', 2000);
+                    showRagaCompletionControls();
+                }
+            } else {
+                gameState.streak = 0;
+                if (gameState.currentMode === 'challenge') {
+                    gameState.lives--;
+                    if (gameState.lives <= 0) {
+                        showMessage('Game Over!', 2000);
+                        setTimeout(() => switchScreen('menu'), 2000);
+                        return;
+                    }
+                }
+                showMessage('Wrong Note!', 1500);
+                gameState.currentIndex = 0;
+                updateNoteSequence();
+            }
+            
+            updateStats();
+            updateCurrentNote();
+        }
+
+        function showRagaCompletionControls() {
+            const controls = document.querySelector('.controls');
+            controls.innerHTML = `
+                <button class="button replay">Replay Raga</button>
+                <button class="button next">Next Raga</button>
+                <button class="button quit">Back to Menu</button>
+            `;
+
+            // Add event listeners
+            controls.querySelector('.replay').addEventListener('click', () => {
+                gameState.currentIndex = 0;
+                updateNoteSequence();
+                updateCurrentNote();
+            });
+
+            controls.querySelector('.next').addEventListener('click', () => {
+                clearInterval(gameState.timer); // Stop the timer
+                startNewRaga(); // Start a new raga
+            });
+
+            controls.querySelector('.quit').addEventListener('click', () => {
+                switchScreen('menu');
+            });
+        }
+        // Quiz functions
+        function displayQuizQuestion() {
+            const question = QUIZ_QUESTIONS[gameState.quizIndex];
+            document.getElementById('quiz-question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'quiz-option';
+                optionEl.textContent = option;
+                optionEl.addEventListener('click', () => handleQuizAnswer(option));
+                optionsContainer.appendChild(optionEl);
+            });
+        }
+
+        function handleQuizAnswer(answer) {
+            const question = QUIZ_QUESTIONS[gameState.quizIndex];
+            if (answer === question.correct) {
+                gameState.score += 30;
+                showMessage('Correct!', 1500);
+                setTimeout(() => {
+                    gameState.quizIndex++;
+                    if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
+                        showMessage('Quiz Complete!', 2000);
+                        setTimeout(() => switchScreen('menu'), 2000);
+                    } else {
+                        displayQuizQuestion();
+                    }
+                }, 1500);
+            } else {
+                gameState.lives--;
+                showMessage('Incorrect!', 1500);
+                if (gameState.lives <= 0) {
+                    showMessage('Quiz Over!', 2000);
+                    setTimeout(() => switchScreen('menu'), 2000);
+                }
+            }
+            updateStats();
+        }
+
+        // Switch between screens
+        function switchScreen(screen) {
+            menuScreen.style.display = screen === 'menu' ? 'flex' : 'none';
+            gameScreen.style.display = screen === 'game' ? 'flex' : 'none';
+            quizScreen.style.display = screen === 'quiz' ? 'flex' : 'none';
+        }
+
+        function startGameMode(mode) {
+            gameState.currentMode = mode;
+            gameState.score = 0;
+            gameState.streak = 0;
+
+            if (mode === 'challenge') {
+                gameState.timeRemaining = gameState.timeLimit; // Reset time remaining
+                startChallengeTimer(); // Start the timer
+                switchScreen('game');
+                initializeGameBoard();
+                startNewRaga();
+            } else if (mode === 'quiz') {
+                gameState.quizIndex = 0;
+                gameState.lives = 3;
+                switchScreen('quiz');
+                displayQuizQuestion();
+            } else {
+                switchScreen('game');
+                initializeGameBoard();
+                startNewRaga();
+            }
+            updateStats();
+        }
+
+        function startChallengeTimer() {
+            // Clear any existing timer
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+
+            gameState.timer = setInterval(() => {
+                gameState.timeRemaining--;
+                document.getElementById('timer').textContent = `Time: ${gameState.timeRemaining}s`;
+
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timer);
+                    showMessage('Time Up! Game Over!', 2000);
+                    setTimeout(() => switchScreen('menu'), 2000);
+                }
+            }, 1000);
+        }
+
+        function startNewRaga() {
+            const ragaNames = Object.keys(RAGAS);
+            const randomRaga = ragaNames[Math.floor(Math.random() * ragaNames.length)];
+            gameState.currentRaga = randomRaga;
+            gameState.currentSequence = RAGAS[randomRaga].sequence.split(' ');
+            gameState.currentIndex = 0;
+
+            gameState.timeRemaining = gameState.timeLimit; // Reset time remaining
+            updateStats(); // Update stats to show the new time
+            document.getElementById('current-raga').textContent = `Raga: ${randomRaga}`;
+            updateNoteSequence();
+            updateCurrentNote();
+            
+            // Start the timer for the new raga
+            startChallengeTimer();
+        }
+
+        // Update current note display
+        function updateCurrentNote() {
+            const noteEl = document.getElementById('current-note');
+            if (gameState.currentIndex < gameState.currentSequence.length) {
+                noteEl.textContent = `Play: ${gameState.currentSequence[gameState.currentIndex]}`;
+            } else {
+                noteEl.textContent = 'Raga Complete!';
+            }
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('practice')) startGameMode('practice');
+                else if (button.classList.contains('challenge')) startGameMode('challenge');
+                else if (button.classList.contains('quiz')) startGameMode('quiz');
+                else if (button.classList.contains('quit')) {
+                    if (gameState.currentMode) {
+                        gameState.currentMode = null;
+                        switchScreen('menu');
+                    } else {
+                        window.close();
+                    }
+                }
+            });
+        });
+
+        // Update note sequence display
+        function updateNoteSequence() {
+            noteSequenceEl.innerHTML = '';
+            gameState.currentSequence.forEach((note, index) => {
+                const noteBox = document.createElement('div');
+                noteBox.className = 'note-box';
+                if (index === gameState.currentIndex) {
+                    noteBox.className += ' current';
+                } else if (index < gameState.currentIndex) {
+                    noteBox.className += ' completed';
+                }
+                noteBox.textContent = note;
+                noteSequenceEl.appendChild(noteBox);
+            });
+        }
+
+        document.getElementById('next-level').addEventListener('click', () => {
+            document.getElementById('next-level').style.display = 'none';
+            startNewRaga();
+        });
+
+        document.getElementById('next-question').addEventListener('click', () => {
+            document.getElementById('next-question').style.display = 'none';
+            gameState.quizIndex++;
+            if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
+                showMessage('Quiz Complete!', 2000);
+                setTimeout(() => switchScreen('menu'), 2000);
+                return;
+            }
+            displayQuizQuestion();
+        });
+
+        // Helper function to play a sequence of notes
+        function playSequence(sequence, interval = 1000) {
+            sequence.forEach((note, index) => {
+                setTimeout(() => {
+                    sounds[note].play();
+                }, index * interval);
+            });
+        }
+
+        // Add a listen button to play the current raga
+        const listenButton = document.createElement('button');
+        listenButton.className = 'button practice';
+        listenButton.textContent = 'Listen to Raga';
+        listenButton.addEventListener('click', () => {
+            playSequence(gameState.currentSequence);
+        });
+        document.querySelector('.controls').prepend(listenButton);
+
+        // Add touch event support
+        function addTouchSupport() {
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.classList.contains('note-pad') ||
+                    e.target.classList.contains('button') ||
+                    e.target.classList.contains('quiz-option')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+
+        // Initialize touch support
+        addTouchSupport();
+
+        // Initialize the game
+        switchScreen('menu');
+    </script>
+</body>
+</html>
