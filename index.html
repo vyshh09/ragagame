@@ -321,18 +321,50 @@
     }
 };
 
-        const QUIZ_QUESTIONS = [
-            {
-                question: "Which note comes after 'p' in Sankarabharanam?",
-                options: ["d1", "d2", "n1", "n2"],
-                correct: "d2"
-            },
-            {
-                question: "What distinguishes Kalyani from Sankarabharanam?",
-                options: ["m1 vs m2", "d1 vs d2", "n1 vs n2", "r1 vs r2"],
-                correct: "m1 vs m2"
-            }
-        ];
+const QUIZ_QUESTIONS = [
+    {
+        question: "Which of the following is a 5 note raga?",
+        options: ["Sivaranjani", "Mayamalavagoula", "Shankarabharanam"],
+        correct: "Sivaranjani"
+    },
+    {
+        question: "Which raga pair has 2Ni's in it?",
+        options: ["Desh & Brindavani", "Shankarabharanam, Kalyani", "Keeravani, Mayamalavagoula"],
+        correct: "Desh & Brindavani"
+    },
+    {
+        question: "Which pair of ragas have the same purvabaga?",
+        options: ["Mayamalavagoula, Chakravakam (Ahirbhairav)", "Kalyani, Shankarabharanam", "Mohana, Sivaranjani"],
+        correct: "Mayamalavagoula, Chakravakam (Ahirbhairav)"
+    },
+    {
+        question: "Which one is not a symmetric raga?",
+        options: ["Mohana", "Desh", "Kalyani"],
+        correct: "Desh"
+    },
+    {
+        question: "Which one is a Prathi Madhyama raga?",
+        options: ["Mohana", "Kalyani", "Shankarabharanam"],
+        correct: "Kalyani"
+    },
+    {
+        question: "Which pair of ragas differ in madhyama (m1/m2)?",
+        options: ["Sankarabharanam-Kalyani", "Mohana-Sivaranjani", "Mayamalavagoula-Keeravani"],
+        correct: "Sankarabharanam-Kalyani"
+    },
+    {
+        question: "Which raga pair differs in gandhara (g1/g2)?",
+        options: ["Mohana-Sivaranjani", "Desh-Brindavani", "Sankarabharanam-Kalyani"],
+        correct: "Mohana-Sivaranjani"
+    },
+    {
+        question: "How many swaras differ between Mayamalavagoula and Keeravani?",
+        options: ["One", "Two", "Three"],
+        correct: "Two"
+    }
+];
+
+// The rest of your JavaScript code remains
 
         const gameState = {
             score: 0,
@@ -624,7 +656,6 @@ NOTES.forEach(note => {
                 button.click(); // Trigger the click event
             });
 
-            // Handle click event
             button.addEventListener('click', () => {
                 console.log('Button clicked:', button.textContent);
                 if (button.classList.contains('practice')) {
