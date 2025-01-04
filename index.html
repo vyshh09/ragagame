@@ -616,13 +616,24 @@ NOTES.forEach(note => {
             }
         }
 
-        // Event Listeners
+  // Event Listeners for buttons
         document.querySelectorAll('.button').forEach(button => {
+            // Handle touchstart event
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent default behavior
+                button.click(); // Trigger the click event
+            });
+
+            // Handle click event
             button.addEventListener('click', () => {
-                if (button.classList.contains('practice')) startGameMode('practice');
-                else if (button.classList.contains('challenge')) startGameMode('challenge');
-                else if (button.classList.contains('quiz')) startGameMode('quiz');
-                else if (button.classList.contains('quit')) {
+                console.log('Button clicked:', button.textContent);
+                if (button.classList.contains('practice')) {
+                    startGameMode('practice');
+                } else if (button.classList.contains('challenge')) {
+                    startGameMode('challenge');
+                } else if (button.classList.contains('quiz')) {
+                    startGameMode('quiz');
+                } else if (button.classList.contains('quit')) {
                     if (gameState.currentMode) {
                         gameState.currentMode = null;
                         switchScreen('menu');
