@@ -383,7 +383,7 @@
 const QUIZ_QUESTIONS = [
     {
         question: "Which of the following is a 5 note raga?",
-        options: ["Sivaranjani", "Mayamalavagoula", "Shankarabharanam"],
+        options: ["Shankarabharanam","Sivaranjani", "Mayamalavagoula"],
         correct: "Sivaranjani"
     },
     {
@@ -391,19 +391,20 @@ const QUIZ_QUESTIONS = [
         options: ["Desh & Brindavani", "Shankarabharanam, Kalyani", "Keeravani, Mayamalavagoula"],
         correct: "Desh & Brindavani"
     },
-    {
-        question: "Which pair of ragas have the same uttarabhaga?",
-        options: [ "Kalyani, Shankarabharanam", "Keeravani, Mayamalavagoula","Desh,Brindavani"],
-        correct: "Desh,Brindavani"
-    },
+
     {
         question: "Which one is not a symmetric raga?",
         options: ["Mohana", "Desh", "Kalyani"],
         correct: "Desh"
     },
     {
+        question: "Which pair of ragas have the same uttarabhaga?",
+        options: [ "Kalyani, Shankarabharanam", "Keeravani, Mayamalavagoula","Desh,Brindavani"],
+        correct: "Desh,Brindavani"
+    },
+    {
         question: "Which one is a Prathi Madhyama raga?",
-        options: ["Mohana", "Kalyani", "Shankarabharanam"],
+        options: ["Kalyani", "Mohana", "Shankarabharanam"],
         correct: "Kalyani"
     },
     {
@@ -413,7 +414,7 @@ const QUIZ_QUESTIONS = [
     },
     {
         question: "Which raga pair differs in gandhara (g1/g2)?",
-        options: ["Mohana-Sivaranjani", "Desh-Brindavani", "Sankarabharanam-Kalyani"],
+        options: [ "Desh-Brindavani", "Sankarabharanam-Kalyani","Mohana-Sivaranjani"],
         correct: "Mohana-Sivaranjani"
     },
     {
@@ -910,13 +911,13 @@ function handleButtonClick(button) {
         }
 
         // Add a listen button to play the current raga
-        const listenButton = document.createElement('button');
-        listenButton.className = 'button practice';
-        listenButton.textContent = 'Listen to Raga';
-        listenButton.addEventListener('click', () => {
-            playSequence(gameState.currentSequence);
-        });
-        document.querySelector('.controls').prepend(listenButton);
+        // const listenButton = document.createElement('button');
+        // listenButton.className = 'button practice';
+        // listenButton.textContent = 'Listen to Raga';
+        // listenButton.addEventListener('click', () => {
+        //     playSequence(gameState.currentSequence);
+        // });
+        // document.querySelector('.controls').prepend(listenButton);
 
         function addTouchSupport() {
             document.addEventListener('touchmove', function(e) {
