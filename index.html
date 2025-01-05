@@ -60,6 +60,25 @@
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .button:active::after {
+            opacity: 1;
         }
 
         .button:hover, .button:active {
@@ -216,13 +235,34 @@
             background-color: #333;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
             text-align: center;
             font-size: clamp(0.9rem, 2.5vw, 1.1rem);
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
         }
+
+        .quiz-option::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .quiz-option:active::after {
+            opacity: 1;
+        }
+
+
 
         .quiz-option:hover, .quiz-option:active {
             background-color: #444;
@@ -456,6 +496,30 @@ NOTES.forEach(note => {
             });
         }
 
+
+         // Add a new function to handle returning to main menu
+         function returnToMainMenu() {
+            // Reset game state
+            gameState.currentMode = null;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.currentRaga = null;
+            gameState.currentSequence = [];
+            gameState.currentIndex = 0;
+            gameState.quizIndex = 0;
+
+            
+            // Clear any existing timer
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            
+            // Switch to menu screen
+            switchScreen('menu');
+            
+            // Update displays
+            updateStats();
+        }
         // Update note sequence display
         function updateNoteSequence() {
             noteSequenceEl.innerHTML = '';
@@ -545,7 +609,8 @@ NOTES.forEach(note => {
             updateCurrentNote();
         }
 
-        function showRagaCompletionControls() {
+       // Update showRagaCompletionControls function
+       function showRagaCompletionControls() {
             const controls = document.querySelector('.controls');
             controls.innerHTML = `
                 <button class="button replay">Replay Raga</button>
@@ -553,23 +618,45 @@ NOTES.forEach(note => {
                 <button class="button quit">Back to Menu</button>
             `;
 
-            // Add event listeners
-            controls.querySelector('.replay').addEventListener('click', () => {
-                gameState.currentIndex = 0;
-                updateNoteSequence();
-                updateCurrentNote();
-            });
+            // Add both touch and click event listeners
+            controls.querySelectorAll('.button').forEach(button => {
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (button.classList.contains('quit')) {
+                        returnToMainMenu();
+                    } else {
+                        handleCompletionControl(button.classList[1]);
+                    }
+                }, { passive: false });
 
-            controls.querySelector('.next').addEventListener('click', () => {
-                clearInterval(gameState.timer); // Stop the timer
-                startNewRaga(); // Start a new raga
-            });
-
-            controls.querySelector('.quit').addEventListener('click', () => {
-                switchScreen('menu');
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('quit')) {
+                        returnToMainMenu();
+                    } else {
+                        handleCompletionControl(button.classList[1]);
+                    }
+                });
             });
         }
-        // Quiz functions
+
+        function handleCompletionControl(action) {
+            switch(action) {
+                case 'replay':
+                    gameState.currentIndex = 0;
+                    updateNoteSequence();
+                    updateCurrentNote();
+                    break;
+                case 'next':
+                    clearInterval(gameState.timer);
+                    startNewRaga();
+                    break;
+                case 'quit':
+                returnToMainMenu();
+                    break;
+            }
+        }
+
+        // Update the quiz options display function
         function displayQuizQuestion() {
             const question = QUIZ_QUESTIONS[gameState.quizIndex];
             document.getElementById('quiz-question').textContent = question.question;
@@ -581,10 +668,51 @@ NOTES.forEach(note => {
                 const optionEl = document.createElement('div');
                 optionEl.className = 'quiz-option';
                 optionEl.textContent = option;
-                optionEl.addEventListener('click', () => handleQuizAnswer(option));
+
+                // Add both touch and click handlers for quiz options
+                optionEl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    handleQuizAnswer(option);
+                }, { passive: false });
+
+                optionEl.addEventListener('click', () => {
+                    handleQuizAnswer(option);
+                });
+
                 optionsContainer.appendChild(optionEl);
             });
         }
+
+        // Updated button click handler function
+function handleButtonClick(button) {
+    console.log('Button clicked:', button.textContent);
+    if (button.classList.contains('practice')) {
+        startGameMode('practice');
+    } else if (button.classList.contains('challenge')) {
+        startGameMode('challenge');
+    } else if (button.classList.contains('quiz')) {
+        startGameMode('quiz');
+    } else if (button.classList.contains('quit')) {
+        // Instead of checking window.close(), always return to menu
+        returnToMainMenu();
+    }
+}
+
+
+
+       
+
+        document.querySelectorAll('.button').forEach(button => {
+    // Handle touchstart event
+    button.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent default behavior
+        handleButtonClick(button); // Use the handleButtonClick function
+    }, { passive: false });
+
+    button.addEventListener('click', () => {
+        handleButtonClick(button); // Use the handleButtonClick function
+    });
+});
 
         function handleQuizAnswer(answer) {
             const question = QUIZ_QUESTIONS[gameState.quizIndex];
@@ -714,6 +842,17 @@ NOTES.forEach(note => {
             });
         });
 
+
+        function handleNextQuestion() {
+            document.getElementById('next-question').style.display = 'none';
+            gameState.quizIndex++;
+            if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
+                showMessage('Quiz Complete!', 2000);
+                setTimeout(() => switchScreen('menu'), 2000);
+                return;
+            }
+            displayQuizQuestion();
+        }
         // Update note sequence display
         function updateNoteSequence() {
             noteSequenceEl.innerHTML = '';
@@ -735,16 +874,13 @@ NOTES.forEach(note => {
             startNewRaga();
         });
 
-        document.getElementById('next-question').addEventListener('click', () => {
-            document.getElementById('next-question').style.display = 'none';
-            gameState.quizIndex++;
-            if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
-                showMessage('Quiz Complete!', 2000);
-                setTimeout(() => switchScreen('menu'), 2000);
-                return;
-            }
-            displayQuizQuestion();
-        });
+        document.getElementById('next-question').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleNextQuestion();
+        }, { passive: false });
+
+        document.getElementById('next-question').addEventListener('click', handleNextQuestion);
+
 
         // Helper function to play a sequence of notes
         function playSequence(sequence, interval = 1000) {
