@@ -622,23 +622,44 @@ NOTES.forEach(note => {
             controls.querySelectorAll('.button').forEach(button => {
                 button.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    if (button.classList.contains('quit')) {
-                        returnToMainMenu();
-                    } else {
-                        handleCompletionControl(button.classList[1]);
-                    }
-                }, { passive: false });
+                    e.stopPropagation();
+                    if (button.classList.contains('replay')) {
+                gameState.currentIndex = 0;
+                updateNoteSequence();
+                updateCurrentNote();
+            } 
+            else if (button.classList.contains('next')) {
+                clearInterval(gameState.timer);
+                startNewRaga();
+            }
+            else if (button.classList.contains('quit')) {
+                returnToMainMenu();
+            }
+        }, { passive: false });
 
-                button.addEventListener('click', () => {
-                    if (button.classList.contains('quit')) {
-                        returnToMainMenu();
-                    } else {
-                        handleCompletionControl(button.classList[1]);
-                    }
-                });
-            });
-        }
+// Keep click listener for desktop compatibility
+button.addEventListener('click', (e) => {
+            if (button.classList.contains('replay')) {
+                gameState.currentIndex = 0;
+                updateNoteSequence();
+                updateCurrentNote();
+            } 
+            else if (button.classList.contains('next')) {
+                clearInterval(gameState.timer);
+                startNewRaga();
+            }
+            else if (button.classList.contains('quit')) {
+                returnToMainMenu();
+            }
+        });
 
+        // Add touchend listener to remove any visual feedback
+        button.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, { passive: false });
+    });
+}
         function handleCompletionControl(action) {
             switch(action) {
                 case 'replay':
