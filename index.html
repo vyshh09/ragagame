@@ -83,6 +83,7 @@
             padding: 10px;
         }
 
+        /* Add specific touch-related styles for note-pad */
         .note-pad {
             aspect-ratio: 1;
             border-radius: 50%;
@@ -97,7 +98,28 @@
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
+            /* Add these properties for better touch feedback */
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
         }
+
+
+        /* Add touch feedback effect */
+        .note-pad::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .note-pad.active::after {
+            opacity: 1;
+        }
+
 
 
         .note-pad:hover, .note-pad:active {
@@ -315,8 +337,8 @@
         "pair": "Mayamalavagoula",
         "difference": "Two swaras different"
     },
-    "Ahirbhairav": {
-        "sequence": "S r1 g2 m1 p d2 n1 S1",
+    "Todi": {
+        "sequence": "S r1 g1 m1 p d1 n1 S1",
         "difficulty": "Hard"
     }
 };
@@ -334,8 +356,8 @@ const QUIZ_QUESTIONS = [
     },
     {
         question: "Which pair of ragas have the same purvabaga?",
-        options: ["Mayamalavagoula, Chakravakam (Ahirbhairav)", "Kalyani, Shankarabharanam", "Mohana, Sivaranjani"],
-        correct: "Mayamalavagoula, Chakravakam (Ahirbhairav)"
+        options: ["Mayamalavagoula, Todi", "Kalyani, Shankarabharanam", "Mohana, Sivaranjani"],
+        correct: "Mayamalavagoula, Todi"
     },
     {
         question: "Which one is not a symmetric raga?",
@@ -412,7 +434,24 @@ NOTES.forEach(note => {
                 const pad = document.createElement('div');
                 pad.className = 'note-pad';
                 pad.textContent = note;
-                pad.addEventListener('click', () => handleNoteClick(note));
+                
+                // Add both touch and click handlers
+                pad.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); // Prevent default touch behavior
+                    pad.classList.add('active');
+                    handleNoteClick(note);
+                }, { passive: false });
+
+                pad.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    pad.classList.remove('active');
+                }, { passive: false });
+
+                // Keep click handler for desktop
+                pad.addEventListener('click', (e) => {
+                    handleNoteClick(note);
+                });
+
                 gameBoard.appendChild(pad);
             });
         }
@@ -725,16 +764,21 @@ NOTES.forEach(note => {
         });
         document.querySelector('.controls').prepend(listenButton);
 
-        // Add touch event support
         function addTouchSupport() {
+            document.addEventListener('touchmove', function(e) {
+                if (e.target.classList.contains('note-pad')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
             document.addEventListener('touchstart', function(e) {
-                if (e.target.classList.contains('note-pad') ||
-                    e.target.classList.contains('button') ||
+                if (e.target.classList.contains('button') ||
                     e.target.classList.contains('quiz-option')) {
                     e.preventDefault();
                 }
             }, { passive: false });
         }
+
 
         // Initialize touch support
         addTouchSupport();
