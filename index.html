@@ -497,27 +497,33 @@ NOTES.forEach(note => {
 
          // Add a new function to handle returning to main menu
          function returnToMainMenu() {
-            // Reset game state
-            gameState.currentMode = null;
-            gameState.score = 0;
-            gameState.streak = 0;
-            gameState.currentRaga = null;
-            gameState.currentSequence = [];
-            gameState.currentIndex = 0;
-            gameState.quizIndex = 0;
-
-            
-            // Clear any existing timer
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
-            
-            // Switch to menu screen
-            switchScreen('menu');
-            
-            // Update displays
-            updateStats();
-        }
+    // Upload score if in a scored mode
+    if (gameState.currentMode === 'challenge') {
+        uploadScore('ragachallenge', gameState.score, gameState.bestStreak);
+    } else if (gameState.currentMode === 'quiz') {
+        uploadScore('quiz', gameState.score);
+    }
+    
+    // Reset game state
+    gameState.currentMode = null;
+    gameState.score = 0;
+    gameState.streak = 0;
+    gameState.currentRaga = null;
+    gameState.currentSequence = [];
+    gameState.currentIndex = 0;
+    gameState.quizIndex = 0;
+    
+    // Clear any existing timer
+    if (gameState.timer) {
+        clearInterval(gameState.timer);
+    }
+    
+    // Switch to menu screen
+    switchScreen('menu');
+    
+    // Update displays
+    updateStats();
+}
         // Update note sequence display
         function updateNoteSequence() {
             noteSequenceEl.innerHTML = '';
@@ -733,31 +739,34 @@ function handleButtonClick(button) {
     });
 });
 
-        function handleQuizAnswer(answer) {
-            const question = QUIZ_QUESTIONS[gameState.quizIndex];
-            if (answer === question.correct) {
-                gameState.score += 30;
-                showMessage('Correct!', 1500);
-                setTimeout(() => {
-                    gameState.quizIndex++;
-                    if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
-                        showMessage('Quiz Complete!', 2000);
-                        setTimeout(() => switchScreen('menu'), 2000);
-                    } else {
-                        displayQuizQuestion();
-                    }
-                }, 1500);
+function handleQuizAnswer(answer) {
+    const question = QUIZ_QUESTIONS[gameState.quizIndex];
+    if (answer === question.correct) {
+        gameState.score += 30;
+        showMessage('Correct!', 1500);
+        setTimeout(() => {
+            gameState.quizIndex++;
+            if (gameState.quizIndex >= QUIZ_QUESTIONS.length) {
+                showMessage('Quiz Complete!', 2000);
+                // Upload quiz score
+                uploadScore('quiz', gameState.score);
+                setTimeout(() => switchScreen('menu'), 2000);
             } else {
-                gameState.lives--;
-                showMessage('Incorrect!', 1500);
-                if (gameState.lives <= 0) {
-                    showMessage('Quiz Over!', 2000);
-                    setTimeout(() => switchScreen('menu'), 2000);
-                }
+                displayQuizQuestion();
             }
-            updateStats();
+        }, 1500);
+    } else {
+        gameState.lives--;
+        showMessage('Incorrect!', 1500);
+        if (gameState.lives <= 0) {
+            showMessage('Quiz Over!', 2000);
+            // Upload quiz score even on game over
+            // uploadScore('quiz', gameState.score);
+            setTimeout(() => switchScreen('menu'), 2000);
         }
-
+    }
+    updateStats();
+}
         // Switch between screens
         function switchScreen(screen) {
             menuScreen.style.display = screen === 'menu' ? 'flex' : 'none';
@@ -789,23 +798,27 @@ function handleButtonClick(button) {
             updateStats();
         }
 
-        function startChallengeTimer() {
-            // Clear any existing timer
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
+        // Modify the challenge mode timer end
+function startChallengeTimer() {
+    if (gameState.timer) {
+        clearInterval(gameState.timer);
+    }
 
-            gameState.timer = setInterval(() => {
-                gameState.timeRemaining--;
-                document.getElementById('timer').textContent = `Time: ${gameState.timeRemaining}s`;
+    gameState.timer = setInterval(() => {
+        gameState.timeRemaining--;
+        document.getElementById('timer').textContent = `Time: ${gameState.timeRemaining}s`;
 
-                if (gameState.timeRemaining <= 0) {
-                    clearInterval(gameState.timer);
-                    showMessage('Time Up! Game Over!', 2000);
-                    setTimeout(() => switchScreen('menu'), 2000);
-                }
-            }, 1000);
-        }
+        if (gameState.timeRemaining <= 0) {
+    clearInterval(gameState.timer);
+    showMessage('Time Up! Game Over!', 2000);
+    // Upload challenge score with streak
+    if (gameState.currentMode === 'challenge') {
+        uploadScore('ragachallenge', gameState.score, gameState.bestStreak);
+    }
+    setTimeout(() => switchScreen('menu'), 2000);
+}
+    }, 1000);
+}
 
         function startNewRaga() {
             const ragaNames = Object.keys(RAGAS);
@@ -910,15 +923,7 @@ function handleButtonClick(button) {
             });
         }
 
-        // Add a listen button to play the current raga
-        // const listenButton = document.createElement('button');
-        // listenButton.className = 'button practice';
-        // listenButton.textContent = 'Listen to Raga';
-        // listenButton.addEventListener('click', () => {
-        //     playSequence(gameState.currentSequence);
-        // });
-        // document.querySelector('.controls').prepend(listenButton);
-
+        
         function addTouchSupport() {
             document.addEventListener('touchmove', function(e) {
                 if (e.target.classList.contains('note-pad')) {
@@ -934,6 +939,19 @@ function handleButtonClick(button) {
             }, { passive: false });
         }
 
+        function uploadScore(gameType, score, bestStreak = 0) {
+            const player = prompt("Enter your player name, required to upload score.");
+            if (player) {
+                const url = `http://sohamapps.rf.gd/music-games/save.php?player=${encodeURIComponent(player)}&game=${encodeURIComponent("ragachallenge")}&score=${score}&bestStreak=${bestStreak}`;
+                window.open(url, '_blank');
+            }
+        }
+       
+
+
+// Rest of the code remains the same as the previous artifact
+// ... (previous event handlers and timer code)
+
 
         // Initialize touch support
         addTouchSupport();
@@ -943,3 +961,6 @@ function handleButtonClick(button) {
     </script>
 </body>
 </html>
+
+
+
